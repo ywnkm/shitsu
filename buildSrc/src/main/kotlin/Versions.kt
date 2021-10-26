@@ -7,4 +7,5 @@ object Versions {
     const val ktor = "1.6.2"
 
     const val snakeyaml = "1.29"
+    const val mirai = "2.7.1"
 }
