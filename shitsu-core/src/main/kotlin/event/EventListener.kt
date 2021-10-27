@@ -1,6 +1,5 @@
-package net.ywnkm.shitsu.Event
+package net.ywnkm.shitsu.event
 
-import net.ywnkm.shitsu.Cancelable
 import kotlin.coroutines.cancellation.CancellationException
 
 public interface EventListener<T> : EventHandlerScope {
@@ -10,7 +9,7 @@ public interface EventListener<T> : EventHandlerScope {
     public val isIntercepted: Boolean
         get() = state == EventState.INTERCEPTED
 
-    override fun intercept()
+    override fun intercept(cancelJob: Boolean)
 
     override fun cancel(cause: CancellationException?)
 
@@ -20,4 +19,5 @@ public interface EventListener<T> : EventHandlerScope {
      * if [state] is [EventState.CANCELED] or [EventState.CANCELLING], it will not work
      */
     public fun resume()
+
 }

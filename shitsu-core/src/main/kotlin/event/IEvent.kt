@@ -1,4 +1,4 @@
-package net.ywnkm.shitsu.Event
+package net.ywnkm.shitsu.event
 
 import kotlinx.coroutines.Job
 import kotlin.coroutines.CoroutineContext
