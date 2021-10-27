@@ -7,12 +7,12 @@ import kotlin.coroutines.cancellation.CancellationException
 public interface EventHandlerScope : Cancelable, CoroutineScope {
 
     /**
-     * @see EventListener.intercept
+     * @see EventJob.intercept
      */
     public fun intercept(cancelJob: Boolean = false)
 
     /**
-     * @see EventListener.cancel
+     * @see EventJob.cancel
      */
     override fun cancel(cause: CancellationException?)
 
