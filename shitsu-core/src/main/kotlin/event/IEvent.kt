@@ -2,11 +2,10 @@ package net.ywnkm.shitsu.event
 
 import kotlinx.coroutines.Job
 import net.ywnkm.shitsu.event.internal.EventImpl
-import net.ywnkm.shitsu.event.internal.EventJobImpl
 import kotlin.coroutines.CoroutineContext
 import kotlin.coroutines.EmptyCoroutineContext
 
-public interface IEvent<R : EventHandlerScope, T, J : EventJob<T>> {
+public interface IEvent<out R : EventHandlerScope, T, out J : EventJob<T>> {
 
     public fun subscribe(
         context: CoroutineContext = EmptyCoroutineContext,

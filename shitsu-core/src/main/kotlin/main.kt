@@ -1,14 +1,13 @@
 package net.ywnkm.shitsu
 
 import kotlinx.coroutines.delay
-import net.ywnkm.shitsu.event.IEvent
 import net.ywnkm.shitsu.event.STEvent
 import net.ywnkm.shitsu.event.internal.STEventJobImpl
 
 
 public suspend fun main() {
 
-    val event = STEvent.newEvent<Int>("233")
+    val event = STEvent.newSTEvent<Int>("233")
 
     val eventJob = event.subscribe {
         println("subscribe call $it")
@@ -27,7 +26,7 @@ public suspend fun main() {
         println("cnacelededed")
     }
 
-    val event2 = IEvent.newSimpleEvent<Int>()
+    val event2 = STEvent.newSimpleEvent<Int>()
 
     event2.subscribe {
         println("event2 subsribe call $it")

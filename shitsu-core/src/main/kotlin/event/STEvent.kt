@@ -13,7 +13,7 @@ public interface STEvent<T> : IEvent<STEventHandlerScope, T, STEventJob<T>> {
 
     public companion object : IEvent.Companion {
 
-        public fun <T> newEvent(eventName: String): STEvent<T> {
+        public fun <T> newSTEvent(eventName: String): STEvent<T> {
             return STEventImpl(eventName)
         }
     }
