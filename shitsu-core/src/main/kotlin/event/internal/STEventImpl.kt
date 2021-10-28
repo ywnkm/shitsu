@@ -2,12 +2,10 @@ package net.ywnkm.shitsu.event.internal
 
 import kotlinx.atomicfu.AtomicRef
 import kotlinx.atomicfu.atomic
+import kotlinx.atomicfu.getAndUpdate
 import kotlinx.atomicfu.update
 import kotlinx.coroutines.*
-import net.ywnkm.shitsu.event.EventHandler
-import net.ywnkm.shitsu.event.EventJob
-import net.ywnkm.shitsu.event.EventState
-import net.ywnkm.shitsu.event.STEvent
+import net.ywnkm.shitsu.event.*
 import java.util.concurrent.Executors
 import kotlin.coroutines.CoroutineContext
 
@@ -25,17 +23,21 @@ internal class STEventImpl<T>(
 
     private val scope = CoroutineScope(context)
 
-    private val eventJobs: AtomicRef<MutableList<EventJobImpl<T>>> = atomic(mutableListOf())
+    private val eventJobs: AtomicRef<MutableList<STEventJobImpl<T>>> = atomic(mutableListOf())
 
-    override fun subscribe(context: CoroutineContext, handler: EventHandler<T>): EventJob<T> {
-        val eventJob = EventJobImpl(this, handler, context)
+    override fun subscribe(
+        context: CoroutineContext,
+        handler: suspend STEventHandlerScope.(T) -> Unit
+    ): STEventJob<T> {
+        val eventJob = STEventJobImpl(this, handler, context)
         eventJobs.update {
-            it.apply { add(eventJob) }
+            it.add(eventJob)
+            it
         }
         return eventJob
     }
 
-    override fun unsubscribe(handler: EventHandler<T>) {
+    override fun unsubscribe(handler: suspend STEventHandlerScope.(T) -> Unit) {
         eventJobs.update { pre ->
             pre.apply {
                 removeIf { it.handler == handler }
@@ -52,18 +54,21 @@ internal class STEventImpl<T>(
                     is EventState.Cancelling,
                     is EventState.Intercepted -> continue
                 }
-                eventJob.currentJob = launch {
-                    eventJob.handler.invoke(eventJob ,value)
+                eventJob.currentJob = launch(eventJob.coroutineContext) {
+                    eventJob.handler(eventJob ,value)
                 }
             }
         }
     }
 
-    override fun remove(eventJob: EventJob<T>) {
-        eventJobs.update {
-            it.apply { remove(eventJob) }
+    override fun remove(eventJob: STEventJob<T>) {
+        if (eventJob !is STEventJobImpl) return
+        eventJobs.getAndUpdate { jobs ->
+            val index = jobs.indexOf(eventJob)
+            if (index >= 0) jobs.removeAt(index)
+            jobs
         }
     }
 
-    override fun get(eventJob: EventJob<T>): Job? = eventJob.currentJob
+    override fun get(eventJob: STEventJob<T>): Job? = eventJob.currentJob
 }

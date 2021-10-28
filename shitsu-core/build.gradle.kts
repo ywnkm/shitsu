@@ -8,6 +8,14 @@ plugins {
 
 kotlin {
     explicitApi()
+
+    sourceSets {
+        all {
+            languageSettings {
+                languageVersion = "1.6"
+            }
+        }
+    }
 }
 
 dependencies {

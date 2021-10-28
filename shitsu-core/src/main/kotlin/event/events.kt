@@ -1,4 +1,4 @@
 package net.ywnkm.shitsu.event
 
-public typealias EventHandler<T> = suspend EventHandlerScope.(T) -> Unit
+// public typealias EventHandler<R : EventHandlerScope,T> = suspend R.(T) -> Unit
 
