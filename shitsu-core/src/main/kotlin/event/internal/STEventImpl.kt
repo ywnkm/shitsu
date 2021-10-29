@@ -8,9 +8,11 @@ import kotlinx.coroutines.*
 import net.ywnkm.shitsu.event.*
 import java.util.concurrent.Executors
 import kotlin.coroutines.CoroutineContext
+import kotlin.reflect.KClass
 
-internal class STEventImpl<T>(
-    override val eventName: String
+internal class STEventImpl<T : Any>(
+    override val eventName: String,
+    val kClass: KClass<T>
 ) : STEvent<T> {
 
     private val context: CoroutineContext = SupervisorJob() + CoroutineName("[STEvent: $eventName]")
@@ -27,7 +29,7 @@ internal class STEventImpl<T>(
 
     override fun subscribe(
         context: CoroutineContext,
-        handler: suspend STEventHandlerScope.(T) -> Unit
+        handler: EventHandler<STEventHandlerScope, T>
     ): STEventJob<T> {
         val eventJob = STEventJobImpl(this, handler, context)
         eventJobs.update {
@@ -37,7 +39,7 @@ internal class STEventImpl<T>(
         return eventJob
     }
 
-    override fun unsubscribe(handler: suspend STEventHandlerScope.(T) -> Unit) {
+    override fun unsubscribe(handler: EventHandler<STEventHandlerScope, T>) {
         eventJobs.update { pre ->
             pre.apply {
                 removeIf { it.handler == handler }
@@ -71,4 +73,12 @@ internal class STEventImpl<T>(
     }
 
     override fun get(eventJob: STEventJob<T>): Job? = eventJob.currentJob
+
+    override fun toString(): String {
+        return "STEvent<${kClass.simpleName}>($eventName)"
+    }
+
+    companion object {
+        inline operator fun <reified T : Any> invoke(eventName: String): STEventImpl<T> = STEventImpl(eventName, T::class)
+    }
 }

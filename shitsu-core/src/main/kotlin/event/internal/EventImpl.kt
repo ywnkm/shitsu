@@ -1,9 +1,10 @@
 package net.ywnkm.shitsu.event.internal
 
 import kotlinx.coroutines.*
-import net.ywnkm.shitsu.event.EventHandlerScope
+import net.ywnkm.shitsu.event.EventHandler
 import net.ywnkm.shitsu.event.EventJob
 import net.ywnkm.shitsu.event.IEvent
+import net.ywnkm.shitsu.event.EventHandlerScope
 import java.util.concurrent.Executors
 import kotlin.coroutines.CoroutineContext
 
@@ -19,7 +20,7 @@ internal class EventImpl<T> : IEvent<EventHandlerScope, T, EventJob<T>>, EventHa
 
     override fun subscribe(
         context: CoroutineContext,
-        handler: suspend EventHandlerScope.(T) -> Unit
+        handler: EventHandler<EventHandlerScope, T>
     ): EventJobImpl<T> {
         val eventJob = EventJobImpl(this, handler)
         launch {
@@ -28,7 +29,7 @@ internal class EventImpl<T> : IEvent<EventHandlerScope, T, EventJob<T>>, EventHa
         return eventJob
     }
 
-    override fun unsubscribe(handler: suspend EventHandlerScope.(T) -> Unit) {
+    override fun unsubscribe(handler: EventHandler<EventHandlerScope, T>) {
         launch {
             jobs.removeIf {
                 it.handler == handler
@@ -49,4 +50,5 @@ internal class EventImpl<T> : IEvent<EventHandlerScope, T, EventJob<T>>, EventHa
             exception?.let { throw it }
         }
     }
+
 }

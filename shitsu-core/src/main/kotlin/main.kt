@@ -15,7 +15,7 @@ public suspend fun main() {
         println(it)
         this as STEventJobImpl<*>
         println("1$state")
-        intercept(true)
+        cancel()
         println("2$state")
         delay(1000)
         println("3$state")
@@ -40,5 +40,7 @@ public suspend fun main() {
     event(2500).join()
     delay(200)
 
+    println(event)
+    println(event2)
     println("233")
 }

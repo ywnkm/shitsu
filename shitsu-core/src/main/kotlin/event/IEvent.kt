@@ -9,7 +9,7 @@ public interface IEvent<out R : EventHandlerScope, T, out J : EventJob<T>> {
 
     public fun subscribe(
         context: CoroutineContext = EmptyCoroutineContext,
-        handler: suspend R.(T) -> Unit
+        handler: EventHandler<R, T>
     ): J
 
     public fun unsubscribe(handler: suspend R.(T) -> Unit)
@@ -19,28 +19,32 @@ public interface IEvent<out R : EventHandlerScope, T, out J : EventJob<T>> {
     // region
 
     public operator fun plus(
-        pair: Pair<CoroutineContext, suspend R.(T) -> Unit>
+        pair: Pair<CoroutineContext, EventHandler<R, T>>
     ): J = subscribe(pair.first, pair.second)
 
     public operator fun plus(
-        handler: suspend R.(T) -> Unit
+        handler: EventHandler<R, T>
     ): J = this + (EmptyCoroutineContext to handler)
 
     public operator fun plusAssign(
-        pair: Pair<CoroutineContext, suspend R.(T) -> Unit>
+        pair: Pair<CoroutineContext, EventHandler<R, T>>
     ): Unit = Unit.also { plus(pair) }
 
     public operator fun plusAssign(
-        handler: suspend R.(T) -> Unit
+        handler: EventHandler<R, T>
     ): Unit = Unit.also { plus(handler) }
 
     public operator fun minusAssign(
-            handler: suspend R.(T) -> Unit
+        handler: EventHandler<R, T>
     ): Unit = unsubscribe(handler)
 
     // endregion
 
     public interface Companion {
+
+        /**
+         * create a simple [IEvent], all operations like [invoke], [subscribe], [unsubscribe] are in a single thread dispatcher
+         */
         public fun <T> newSimpleEvent(): IEvent<EventHandlerScope, T, EventJob<T>> = EventImpl()
     }
 

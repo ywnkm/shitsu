@@ -2,6 +2,7 @@ package net.ywnkm.shitsu.event.internal
 
 import kotlinx.atomicfu.*
 import kotlinx.coroutines.DisposableHandle
+import kotlinx.coroutines.InternalCoroutinesApi
 import kotlinx.coroutines.Job
 import net.ywnkm.shitsu.event.EventState
 import net.ywnkm.shitsu.event.STEventHandlerScope
@@ -9,7 +10,7 @@ import net.ywnkm.shitsu.event.STEventJob
 import kotlin.coroutines.CoroutineContext
 import kotlin.coroutines.cancellation.CancellationException
 
-internal class STEventJobImpl<T>(
+internal class STEventJobImpl<T : Any>(
     val event: STEventImpl<T>,
     val handler: suspend STEventHandlerScope.(T) -> Unit,
     override val coroutineContext: CoroutineContext
@@ -27,6 +28,7 @@ internal class STEventJobImpl<T>(
                 }
                 value.invokeOnCompletion {
                     if (field === value) {
+                        field = null
                         _state.update { pre ->
                             when(pre) {
                                 is EventState.Running -> EventState.Waiting().from(pre)
@@ -71,18 +73,21 @@ internal class STEventJobImpl<T>(
                 is EventState.Cancelled -> pre
             }
         }
+        @Suppress("NON_EXHAUSTIVE_WHEN_STATEMENT")
         when(preState) {
             is EventState.Waiting,
-            is EventState.Running, -> {
+            is EventState.Running -> {
                 event.remove(this)
                 _state.value.notifyCancellation()
             }
             is EventState.Cancelling,
             is EventState.Cancelled -> return
         }
-        job?.let {
-            it.cancel(cause)
-            it.invokeOnCompletion {
+        if (job != null) {
+            job.cancel(cause)
+
+            @OptIn(InternalCoroutinesApi::class)
+            job.invokeOnCompletion(onCancelling = false, invokeImmediately = false) {
                 _state.updateAndGet { pre ->
                     when(pre) {
                         is EventState.Cancelling -> EventState.Cancelled().from(pre)
@@ -91,8 +96,6 @@ internal class STEventJobImpl<T>(
                 }
             }
         }
-
-
     }
 
     override fun resume() {

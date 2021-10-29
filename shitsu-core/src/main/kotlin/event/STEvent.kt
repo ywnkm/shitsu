@@ -2,6 +2,7 @@ package net.ywnkm.shitsu.event
 
 import kotlinx.coroutines.Job
 import net.ywnkm.shitsu.event.internal.STEventImpl
+import kotlin.reflect.KClass
 
 public interface STEvent<T> : IEvent<STEventHandlerScope, T, STEventJob<T>> {
 
@@ -13,8 +14,9 @@ public interface STEvent<T> : IEvent<STEventHandlerScope, T, STEventJob<T>> {
 
     public companion object : IEvent.Companion {
 
-        public fun <T> newSTEvent(eventName: String): STEvent<T> {
-            return STEventImpl(eventName)
-        }
+        public fun <T : Any> newSTEvent(eventName: String, kClass: KClass<T>): STEvent<T> = STEventImpl(eventName, kClass)
+
+        public inline fun <reified T : Any> newSTEvent(eventName: String): STEvent<T> = newSTEvent(eventName, T::class)
+
     }
 }
