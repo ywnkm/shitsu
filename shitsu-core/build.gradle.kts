@@ -29,6 +29,8 @@ dependencies {
 
     api("net.mamoe:mirai-core:${Versions.mirai}")
 
+    implementation("org.yaml:snakeyaml:${Versions.snakeyaml}")
+
     testImplementation(kotlin("test"))
 }
 

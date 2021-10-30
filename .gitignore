@@ -15,3 +15,6 @@ gradle-app.setting
 
 /buildSrc/build/
 /shitsu-core/build/
+/shitsu-core/src/test/
+/config/
+/shitsu-core/src/main/kotlin/main.kt
