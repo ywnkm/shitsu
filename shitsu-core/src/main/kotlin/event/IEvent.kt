@@ -12,7 +12,7 @@ public interface IEvent<out R : EventHandlerScope, T, out J : EventJob<T>> {
         handler: EventHandler<R, T>
     ): J
 
-    public fun unsubscribe(handler: suspend R.(T) -> Unit)
+    public fun unsubscribe(handler: EventHandler<R, T>)
 
     public operator fun invoke(value: T, context: CoroutineContext = EmptyCoroutineContext): Job
 

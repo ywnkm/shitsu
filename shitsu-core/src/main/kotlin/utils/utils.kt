@@ -1,5 +1,7 @@
 package net.ywnkm.shitsu.utils
 
+@ShitsuExperimental
+@Suppress("Unchecked_Cast")
 public fun Map<String, Any>.toJsonString(): String = buildString {
     fun sr(str: String): String = "\"$str\""
     append("{")
@@ -19,7 +21,6 @@ public fun Map<String, Any>.toJsonString(): String = buildString {
                 `append,`()
             }
             is Map<*, *> -> {
-                @Suppress("Unchecked_Cast")
                 value as Map<String, Any>
                 append(sr(key)).append(":").append(value.toJsonString())
                 `append,`()
@@ -34,7 +35,6 @@ public fun Map<String, Any>.toJsonString(): String = buildString {
                         }
                         is Number -> append(o)
                         is Map<*, *> -> {
-                            @Suppress("Unchecked_Cast")
                             o as Map<String, Any>
                             append(o.toJsonString())
                         }

@@ -6,12 +6,12 @@ import kotlin.coroutines.CoroutineContext
 
 @ShitsuExperimental
 public class ContextMap<K, V>(
-        override val coroutineContext: CoroutineContext,
-        private val delegate: MutableMap<K,V> = mutableMapOf()
+    override val coroutineContext: CoroutineContext,
+    private val delegate: MutableMap<K,V> = mutableMapOf()
 ): MutableMap<K,V> by delegate, CoroutineScope {
 
-    override fun get(key: K): V? = runBlocking(coroutineContext) {
-        delegate.get(key)
+    override operator fun get(key: K): V? = runBlocking(coroutineContext) {
+        delegate[key]
     }
 
     override fun put(key: K, value: V): V? = runBlocking(coroutineContext) {

@@ -5,22 +5,22 @@ import kotlinx.serialization.json.Json
 import net.ywnkm.shitsu.event.EventHandlerScope
 import net.ywnkm.shitsu.event.EventJob
 import net.ywnkm.shitsu.event.IEvent
+import net.ywnkm.shitsu.utils.ShitsuExperimental
 import net.ywnkm.shitsu.utils.io.ReqLogger
 import net.ywnkm.shitsu.utils.io.logger
 import net.ywnkm.shitsu.utils.toJsonString
 import org.yaml.snakeyaml.Yaml
 import java.io.File
 
-@PublishedApi
-internal var configMap: MutableMap<String, Any> = mutableMapOf()
 
-public object ShitsuConfig :
-    IEvent<EventHandlerScope, ShitsuConfig, EventJob<ShitsuConfig>> by IEvent.newSimpleEvent(),
-    ReqLogger {
+public open class ShitsuConfig private constructor(
+    configFilePath: String = "config/shitsu_config.yml"
+) : IEvent<EventHandlerScope, ShitsuConfig, EventJob<ShitsuConfig>> by IEvent.newSimpleEvent(), ReqLogger {
 
-    private const val configDir = "config"
-    private const val configFileName = "shitsu_config.yml"
-    private val configFile: File = File("$configDir/$configFileName")
+    @PublishedApi
+    internal var configMap: MutableMap<String, Any> = mutableMapOf()
+
+    private val configFile: File = File(configFilePath)
     private val yaml = Yaml()
 
     init {
@@ -35,6 +35,7 @@ public object ShitsuConfig :
             } finally {
                 inputStream.close()
             }
+            @Suppress("LeakingThis")
             invoke(this)
         }
     }
@@ -54,6 +55,7 @@ public object ShitsuConfig :
         }
     }
 
+    @OptIn(ShitsuExperimental::class, kotlinx.serialization.ExperimentalSerializationApi::class)
     public inline operator fun <reified T> get(key: String): T? {
         var map = configMap
         var result: Any?
@@ -61,6 +63,7 @@ public object ShitsuConfig :
         val ks = key.split(".")
         for ((index,key) in ks.withIndex())  {
             result = map[key]
+            @Suppress("Unchecked_Cast")
             val resultMap = (result as? MutableMap<String, Any>)
             if (resultMap != null && index != ks.size - 1) {
                 map = resultMap
@@ -86,16 +89,16 @@ public object ShitsuConfig :
     public inline fun <reified T> subscribe(propertyName: String, crossinline block: (T) -> Unit) {
         var old = get<T>(propertyName)
         subscribe {
-            get<T>(propertyName)?.let(block)
-            /*
+            // get<T>(propertyName)?.let(block)
+
             val new = get<T>(propertyName)
             if (new != old) {
                 new?.let(block)
                 old = new
             }
-
-             */
         }
     }
+
+    public companion object : ShitsuConfig()
 
 }

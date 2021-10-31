@@ -1,9 +1,11 @@
 version = "0.0.1"
+group = "net.ywnkm"
 
 plugins {
     kotlin("jvm")
     kotlin("plugin.serialization") version Versions.kotlin
     application
+    `maven-publish`
 }
 
 kotlin {

@@ -1,3 +1,3 @@
 package net.ywnkm.shitsu.event
 
-// public interface EventHandler<R : EventHandlerScope,T> : suspend R.(T) -> Unit
+public typealias EventHandler<R, T> = suspend R.(T) -> Unit
