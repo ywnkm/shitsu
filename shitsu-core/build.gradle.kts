@@ -14,7 +14,7 @@ kotlin {
     sourceSets {
         all {
             languageSettings {
-                languageVersion = "1.6"
+                // languageVersion = "1.6"
             }
         }
     }
@@ -26,6 +26,10 @@ dependencies {
 
     implementation(kotlin("stdlib"))
     implementation(kotlin("reflect"))
+
+    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:${Versions.serialization}")
+    implementation("io.ktor:ktor-client-serialization:${Versions.ktor}")
+    implementation("io.ktor:ktor-client-cio:${Versions.ktor}")
 
     // endregion
 
@@ -63,10 +67,11 @@ tasks.register<Jar>("fatJar") {
     manifest {
         attributes(
                 mapOf(
-                        "Main-Class" to "com.elouyi.ElyBotApplicationKt",
+                        "Main-Class" to "net.ywnkm.shitsu.MainKt",
                 )
         )
     }
+    duplicatesStrategy = DuplicatesStrategy.INCLUDE
 }
 
 tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile> {

@@ -13,7 +13,7 @@ import org.yaml.snakeyaml.Yaml
 import java.io.File
 
 
-public open class ShitsuConfig private constructor(
+public open class ShitsuConfig constructor(
     configFilePath: String = "config/shitsu_config.yml"
 ) : IEvent<EventHandlerScope, ShitsuConfig, EventJob<ShitsuConfig>> by IEvent.newSimpleEvent(), ReqLogger {
 
@@ -61,8 +61,8 @@ public open class ShitsuConfig private constructor(
         var result: Any?
         var t: T? = null
         val ks = key.split(".")
-        for ((index,key) in ks.withIndex())  {
-            result = map[key]
+        for ((index,key2) in ks.withIndex())  {
+            result = map[key2]
             @Suppress("Unchecked_Cast")
             val resultMap = (result as? MutableMap<String, Any>)
             if (resultMap != null && index != ks.size - 1) {
@@ -71,14 +71,19 @@ public open class ShitsuConfig private constructor(
             }
             if (result === null) {
                 logger.warning("can not find property $key from config")
+                return null
             }
 
             kotlin.runCatching {
                 t = result as T
             }.onFailure {
+                if (T::class == Long::class) {
+                    t = (result as Int).toLong() as T
+                    return t
+                }
                 if (resultMap != null) {
                     t = Json.decodeFromString(resultMap.toJsonString())
-                    return@onFailure
+                    return t
                 }
                 logger.warning("can not find property $key from config")
             }

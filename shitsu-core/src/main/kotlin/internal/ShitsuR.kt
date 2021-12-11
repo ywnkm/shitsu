@@ -8,4 +8,6 @@ internal object ShitsuR {
     @Synchronized set
 
     var masterId: Long = 0
+
+    val groups: MutableList<Long> = mutableListOf()
 }

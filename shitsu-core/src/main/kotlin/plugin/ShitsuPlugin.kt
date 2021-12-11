@@ -23,7 +23,8 @@ public abstract class ShitsuPlugin : ReqLogger {
     protected inline fun <reified T : Event> onEvent(
         moduleName: String = "null",
         permit: PermitLevel = defaultPermit,
-        noinline block: suspend T.() -> Unit) {
+        noinline block: suspend T.() -> Unit
+    ) {
         handlers += PluginHandler(moduleName, permit, block)
     }
 

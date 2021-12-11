@@ -45,13 +45,13 @@ public object JarUtils {
 
     @ShitsuExperimental
     public fun loadJarFromDir(dir: File): KClassList {
-        val result = mutableListOf<KClass<*>>()
         val files = dir.listFiles()
             ?.filter { it.name.endsWith(".jar") }
-            ?.also { if (it.isEmpty()) return KClassList(result) }
-            ?: return KClassList(result)
+            ?.also { if (it.isEmpty()) return KClassList.Empty }
+            ?: return KClassList.Empty
         val urls = files.map { it.toURI().toURL() }
         val classLoader = URLClassLoader(urls.toTypedArray())
+        val result = mutableListOf<KClass<*>>()
         for (file in files) {
             result += loadJar(file, classLoader).value
         }
@@ -76,6 +76,11 @@ public object JarUtils {
                     (_class as? KClass<T>)?.let(block)
                 } catch (ignore: Throwable) { }
             }
+        }
+
+        public companion object {
+            @JvmStatic
+            public val Empty: KClassList = KClassList(emptyList())
         }
     }
 
